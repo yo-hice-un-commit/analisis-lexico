@@ -4,10 +4,10 @@
 #include "helpers.h"
 
 enum enumTokenType isWordReserved(char *word) {
-    char *listOperador[] = {"if", "while"};
+    char *listOperador[] = {"if", "while", "return", "else", ">"};
     char *listType[] = {"int"};
     int i;
-    for (i = 0; i < 2; ++i) {
+    for (i = 0; i < 5; ++i) {
         if (strcmp(listOperador[i], word) == 0) {
             return OPERATOR;
         }
@@ -59,10 +59,20 @@ int main(int argc, char *argv[]) {
 
     while (!feof(program)) {
         letter = (char) fgetc(program);
-        if (letter == -1) {
-            continue;
-        }
         switch (letter) {
+            case -1:{
+                tipo = typeWord(word);
+                if (tipo) {
+                    nuevoToken(tipo, word, &listToken);
+                }
+                cleanWord(word);
+                wordPosition = 0;
+            }
+            case 10: {
+                cleanWord(word);
+                wordPosition = 0;
+                continue;
+            }
             case 32:
                 tipo = typeWord(word);
                 if (tipo) {
@@ -110,6 +120,29 @@ int main(int argc, char *argv[]) {
                 wordPosition = 0;
                 continue;
             }
+            case 62:{
+                tipo = typeWord(word);
+                if (tipo) {
+                    nuevoToken(tipo, word, &listToken);
+                }
+                nuevoToken(OPERATOR, ">", &listToken);
+                cleanWord(word);
+                wordPosition = 0;
+                continue;
+            }
+            case 59:{
+                tipo = typeWord(word);
+                if (tipo) {
+                    nuevoToken(tipo, word, &listToken);
+                }
+                nuevoToken(CARACTERPUNTUACION, ";", &listToken);
+                cleanWord(word);
+                wordPosition = 0;
+                continue;
+            }
+        }
+        if (letter == -1) {
+            continue;
         }
         word[wordPosition] = letter;
         wordPosition++;
