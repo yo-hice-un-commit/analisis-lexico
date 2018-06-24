@@ -28,9 +28,9 @@ char *leerLinea(FILE *file, int *offset) {
 
 }
 
-char * getWord(char *text, char limit) {
+char *getWord(char *text, char limit) {
     int length = (int) strlen(text);
-    if(!length) return NULL;
+    if (!length) return NULL;
     int i = 0;
     int firstSpace = 0;
     int lengthSub = 0;
@@ -53,7 +53,7 @@ char * getWord(char *text, char limit) {
     int j = 0;
     //limpiamos el texto
     for (j; j < length; ++j) {
-        text[j] = NULL;
+        text[j] = 0;
     }
     //copiamos lo extraido
     j = i - lengthSub;
@@ -121,6 +121,10 @@ char *getToken(enum enumTokenType token) {
         }
         case IDENTIFICADOR:
             return "IDENTIFICADOR";
+        case OPERADORCARGA:
+            return "OPERADOR CARGA";
+        case VALORCONSTANTE:
+            return "VALOR CONSTANTE";
         default:
             return "";
     }
@@ -143,4 +147,22 @@ char *trim(char *word) {
         }
     }
     return textTrim;
+}
+
+int isNumber(char *text) {
+    char *letra = NULL;
+    strtol(text, &letra, 10);
+    if (strlen(letra)) {
+        return 0;
+    } else {
+        return 1;
+    }
+}
+
+int isString(char *text) {
+    int length = (int) strlen(text);
+    if(text[0] == '"' && text[length-1] == '"'){
+        return 1;
+    }
+    return 0;
 }

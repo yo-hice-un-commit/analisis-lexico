@@ -25,9 +25,16 @@ enum enumTokenType typeWord(char *word) {
     char *cleanSpace = trim(word);
     if (strlen(word) == 0) return UNDEFINED;
     if ((type = isWordReserved(cleanSpace))) {
-
     } else {
-        type = IDENTIFICADOR;
+        if (isNumber(word)) {
+            type = VALORCONSTANTE;
+        } else {
+            if (isString(word)) {
+                type = VALORCONSTANTE;
+            } else {
+                type = IDENTIFICADOR;
+            }
+        }
     }
     free(cleanSpace);
     return type;
@@ -42,6 +49,7 @@ int nuevoToken(enum enumTokenType type, char *word, token **List) {
     newToken->sig = NULL;
     pushToken(&(*List), newToken);
 }
+
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {
@@ -60,13 +68,14 @@ int main(int argc, char *argv[]) {
     while (!feof(program)) {
         letter = (char) fgetc(program);
         switch (letter) {
-            case -1:{
+            case -1: {
                 tipo = typeWord(word);
                 if (tipo) {
                     nuevoToken(tipo, word, &listToken);
                 }
                 cleanWord(word);
                 wordPosition = 0;
+                break;
             }
             case 10: {
                 cleanWord(word);
@@ -90,6 +99,22 @@ int main(int argc, char *argv[]) {
                 cleanWord(word);
                 wordPosition = 0;
                 continue;
+            case 43:
+                tipo = typeWord(word);
+                if (tipo) {
+                    nuevoToken(tipo, word, &listToken);
+                }
+                cleanWord(word);
+                wordPosition = 0;
+                letter = (char) getc(program);
+                if (letter == 43) {
+                    nuevoToken(OPERATOR, "++", &listToken);
+                    continue;
+                } else {
+                    nuevoToken(OPERATOR, "+", &listToken);
+                }
+                if (letter == 32) continue;
+                break;
             case 44: {
                 tipo = typeWord(word);
                 if (tipo) {
@@ -100,11 +125,29 @@ int main(int argc, char *argv[]) {
                 wordPosition = 0;
                 continue;
             }
+            case 45:
+                tipo = typeWord(word);
+                if (tipo) {
+                    nuevoToken(tipo, word, &listToken);
+                }
+                cleanWord(word);
+                wordPosition = 0;
+                letter = (char) getc(program);
+                if (letter == 45) {
+                    nuevoToken(OPERATOR, "--", &listToken);
+                    continue;
+                } else {
+                    nuevoToken(OPERATOR, "-", &listToken);
+                }
+                if (letter == 32) continue;
+                break;
             case 41: {
                 tipo = typeWord(word);
                 if (tipo) {
                     nuevoToken(tipo, word, &listToken);
                 }
+                // si es una carga o una asignaciom
+
                 nuevoToken(CARACTERPUNTUACION, ")", &listToken);
                 cleanWord(word);
                 wordPosition = 0;
@@ -120,7 +163,44 @@ int main(int argc, char *argv[]) {
                 wordPosition = 0;
                 continue;
             }
-            case 62:{
+            case 125: {
+                tipo = typeWord(word);
+                if (tipo) {
+                    nuevoToken(tipo, word, &listToken);
+                }
+                nuevoToken(CARACTERPUNTUACION, "}", &listToken);
+                cleanWord(word);
+                wordPosition = 0;
+                continue;
+            }
+            case 60: {
+                tipo = typeWord(word);
+                if (tipo) {
+                    nuevoToken(tipo, word, &listToken);
+                }
+                nuevoToken(OPERATOR, "<", &listToken);
+                cleanWord(word);
+                wordPosition = 0;
+                continue;
+            }
+            case 61: {
+                tipo = typeWord(word);
+                if (tipo) {
+                    nuevoToken(tipo, word, &listToken);
+                }
+                cleanWord(word);
+                wordPosition = 0;
+                letter = (char) getc(program);
+                if (letter == 61) {
+                    nuevoToken(OPERATOR, "==", &listToken);
+                    continue;
+                } else {
+                    nuevoToken(OPERADORCARGA, "=", &listToken);
+                }
+                if (letter == 32) continue;
+                break;
+            }
+            case 62: {
                 tipo = typeWord(word);
                 if (tipo) {
                     nuevoToken(tipo, word, &listToken);
@@ -130,7 +210,7 @@ int main(int argc, char *argv[]) {
                 wordPosition = 0;
                 continue;
             }
-            case 59:{
+            case 59: {
                 tipo = typeWord(word);
                 if (tipo) {
                     nuevoToken(tipo, word, &listToken);

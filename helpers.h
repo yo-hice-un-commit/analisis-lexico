@@ -14,13 +14,27 @@ typedef enum enumTokenType {
     OPERATOR = 1,
     TYPE = 2,
     CARACTERPUNTUACION = 3,
-    IDENTIFICADOR = 4
-};
+    IDENTIFICADOR = 4,
+    OPERADORCARGA = 5,
+    VALORCONSTANTE = 6
+} enumTokenType;
+
 char *leerLinea(FILE *file, int *offset);
-char * getWord(char *text, char limit);
+
+char *getWord(char *text, char limit);
+
 void cleanWord(char *word);
+
 void showResult(token *listToken);
+
 void pushToken(token **List, token *item);
+
 char *getToken(enum enumTokenType token);
+
 char *trim(char *word);
+
+int isNumber(char *text);
+
+int isString(char *text);
+
 #endif //TP_1_HELPERS_H
