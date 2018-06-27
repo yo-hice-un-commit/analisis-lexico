@@ -9,7 +9,7 @@ typedef struct {
     char *token;
     int linea;
     void *sig;
-    char * Error;
+    char *Error;
 } token;
 typedef enum enumTokenType {
     UNDEFINED = 0,
@@ -18,7 +18,8 @@ typedef enum enumTokenType {
     CARACTERPUNTUACION = 3,
     IDENTIFICADOR = 4,
     OPERADORCARGA = 5,
-    VALORCONSTANTE = 6
+    VALORCONSTANTE = 6,
+    LITERALCADENA = 7
 } enumTokenType;
 
 char *leerLinea(FILE *file, int *offset);

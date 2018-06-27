@@ -1,7 +1,5 @@
-int nombreFuncion(int x,int y){
-    if(x > y)
-        return x;
-    else
-        return y;
-    algo(varible1,variable2);
+void analisisLexico(token *List) {
+    int miguel = 12;
+    char * nombre = "miguel";
+    return 0 ;
 }

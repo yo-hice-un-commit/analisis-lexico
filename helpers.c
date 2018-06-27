@@ -75,7 +75,7 @@ char *getWord(char *text, char limit) {
 
 void showResult(token *listToken) {
     token *aux = listToken;
-    printf("--------------STADO-------------------\n");
+    printf("--------------TABLA DE LEXEMAS-------------------\n");
     while (aux) {
         printf("Lexema [%s]\n", aux->lexema);
         printf("Token [%s]\n", aux->token);
@@ -126,8 +126,10 @@ char *getToken(enum enumTokenType token) {
             return "OPERADOR CARGA";
         case VALORCONSTANTE:
             return "VALOR CONSTANTE";
+        case LITERALCADENA:
+            return "LITERAL CADENA";
         default:
-            return "";
+            return "LEXEMA NO RECONOCIDO";
     }
 }
 

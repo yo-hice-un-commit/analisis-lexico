@@ -4,15 +4,15 @@
 #include "helpers.h"
 
 enum enumTokenType isWordReserved(char *word) {
-    char *listOperador[] = {"if", "while", "return", "else", ">"};
-    char *listType[] = {"int"};
+    char *listOperador[] = {"if", "while", "return", "else","for","switch","case"};
+    char *listType[] = {"int","char","float","double"};
     int i;
-    for (i = 0; i < 5; ++i) {
+    for (i = 0; i < 7; ++i) {
         if (strcmp(listOperador[i], word) == 0) {
             return OPERATOR;
         }
     }
-    for (i = 0; i < 1; ++i) {
+    for (i = 0; i < 4; ++i) {
         if (strcmp(listType[i], word) == 0) {
             return TYPE;
         }
@@ -30,7 +30,7 @@ enum enumTokenType typeWord(char *word) {
             type = VALORCONSTANTE;
         } else {
             if (isString(word)) {
-                type = VALORCONSTANTE;
+                type = LITERALCADENA;
             } else {
                 type = IDENTIFICADOR;
             }
@@ -52,8 +52,9 @@ int nuevoToken(enum enumTokenType type, char *word, token **List, int linea) {
     pushToken(&(*List), newToken);
 }
 
-
 void analisisLexico(token *List) {
+    if(!List)
+        return;
     token *actual;
     token *post;
     actual = List;
@@ -61,8 +62,10 @@ void analisisLexico(token *List) {
     while (actual) {
         if (strcmp("IDENTIFICADOR", actual->token) == 0) {
             //verificamos el siguiente para ver si es un nombre de variable o una funcion
-            if (strcmp("(", post->lexema) == 0) {
-                actual->token = "IDENTIFICADOR DE FUNCION";
+            if (post) {
+                if (strcmp("(", post->lexema) == 0) {
+                    actual->token = "IDENTIFICADOR DE FUNCION";
+                }
             }
         }
         actual = post;
@@ -71,7 +74,6 @@ void analisisLexico(token *List) {
         }
     }
 }
-
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {
@@ -113,6 +115,56 @@ int main(int argc, char *argv[]) {
                 cleanWord(word);
                 wordPosition = 0;
                 continue;
+            case 33:
+                tipo = typeWord(word);
+                if (tipo) {
+                    nuevoToken(tipo, word, &listToken, linea);
+                }
+                cleanWord(word);
+                wordPosition = 0;
+                letter = (char) getc(program);
+                if (letter == 61) {
+                    nuevoToken(OPERATOR, "!=", &listToken, linea);
+                    continue;
+                } else {
+                    nuevoToken(OPERATOR, "!", &listToken, linea);
+                }
+                if (letter == 32) continue;
+                break;
+            case 38:{
+                tipo = typeWord(word);
+                if (tipo) {
+                    nuevoToken(tipo, word, &listToken, linea);
+                }
+                cleanWord(word);
+                wordPosition = 0;
+                letter = (char) getc(program);
+                if (letter == 38) {
+                    nuevoToken(OPERATOR, "&&", &listToken, linea);
+                    continue;
+                } else {
+                    nuevoToken(UNDEFINED, "&", &listToken, linea);
+                }
+                if (letter == 32) continue;
+                break;
+            }
+            case 124:{
+                tipo = typeWord(word);
+                if (tipo) {
+                    nuevoToken(tipo, word, &listToken, linea);
+                }
+                cleanWord(word);
+                wordPosition = 0;
+                letter = (char) getc(program);
+                if (letter == 124) {
+                    nuevoToken(OPERATOR, "||", &listToken, linea);
+                    continue;
+                } else {
+                    nuevoToken(UNDEFINED, "|", &listToken, linea);
+                }
+                if (letter == 32) continue;
+                break;
+            }
             case 40:
                 tipo = typeWord(word);
                 if (tipo) {
@@ -201,10 +253,17 @@ int main(int argc, char *argv[]) {
                 if (tipo) {
                     nuevoToken(tipo, word, &listToken, linea);
                 }
-                nuevoToken(OPERATOR, "<", &listToken, linea);
                 cleanWord(word);
                 wordPosition = 0;
-                continue;
+                letter = (char) getc(program);
+                if (letter == 61) {
+                    nuevoToken(OPERATOR, "<=", &listToken, linea);
+                    continue;
+                } else {
+                    nuevoToken(OPERATOR, "<", &listToken, linea);
+                }
+                if (letter == 32) continue;
+                break;
             }
             case 61: {
                 tipo = typeWord(word);
@@ -228,10 +287,17 @@ int main(int argc, char *argv[]) {
                 if (tipo) {
                     nuevoToken(tipo, word, &listToken, linea);
                 }
-                nuevoToken(OPERATOR, ">", &listToken, linea);
                 cleanWord(word);
                 wordPosition = 0;
-                continue;
+                letter = (char) getc(program);
+                if (letter == 61) {
+                    nuevoToken(OPERATOR, ">=", &listToken, linea);
+                    continue;
+                } else {
+                    nuevoToken(OPERATOR, ">", &listToken, linea);
+                }
+                if (letter == 32) continue;
+                break;
             }
             case 59: {
                 tipo = typeWord(word);
@@ -239,6 +305,56 @@ int main(int argc, char *argv[]) {
                     nuevoToken(tipo, word, &listToken, linea);
                 }
                 nuevoToken(CARACTERPUNTUACION, ";", &listToken, linea);
+                cleanWord(word);
+                wordPosition = 0;
+                continue;
+            }
+            case 91: {
+                tipo = typeWord(word);
+                if (tipo) {
+                    nuevoToken(tipo, word, &listToken, linea);
+                }
+                nuevoToken(CARACTERPUNTUACION, "[", &listToken, linea);
+                cleanWord(word);
+                wordPosition = 0;
+                continue;
+            }
+            case 93: {
+                tipo = typeWord(word);
+                if (tipo) {
+                    nuevoToken(tipo, word, &listToken, linea);
+                }
+                nuevoToken(CARACTERPUNTUACION, "]", &listToken, linea);
+                cleanWord(word);
+                wordPosition = 0;
+                continue;
+            }
+            case 42: {
+                tipo = typeWord(word);
+                if (tipo) {
+                    nuevoToken(tipo, word, &listToken, linea);
+                }
+                nuevoToken(OPERATOR, "*", &listToken, linea);
+                cleanWord(word);
+                wordPosition = 0;
+                continue;
+            }
+            case 47: {
+                tipo = typeWord(word);
+                if (tipo) {
+                    nuevoToken(tipo, word, &listToken, linea);
+                }
+                nuevoToken(OPERATOR, "/", &listToken, linea);
+                cleanWord(word);
+                wordPosition = 0;
+                continue;
+            }
+            case 37: {
+                tipo = typeWord(word);
+                if (tipo) {
+                    nuevoToken(tipo, word, &listToken, linea);
+                }
+                nuevoToken(OPERATOR, "%", &listToken, linea);
                 cleanWord(word);
                 wordPosition = 0;
                 continue;
