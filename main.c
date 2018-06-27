@@ -40,14 +40,36 @@ enum enumTokenType typeWord(char *word) {
     return type;
 }
 
-int nuevoToken(enum enumTokenType type, char *word, token **List) {
+int nuevoToken(enum enumTokenType type, char *word, token **List, int linea) {
     token *newToken = malloc(sizeof(token));
     newToken->token = getToken(type);
     char *lexema = malloc(strlen(word));
     strcpy(lexema, word);
     newToken->lexema = lexema;
+    newToken->linea = linea;
     newToken->sig = NULL;
+    newToken->Error = "";
     pushToken(&(*List), newToken);
+}
+
+
+void analisisLexico(token *List) {
+    token *actual;
+    token *post;
+    actual = List;
+    post = List->sig;
+    while (actual) {
+        if (strcmp("IDENTIFICADOR", actual->token) == 0) {
+            //verificamos el siguiente para ver si es un nombre de variable o una funcion
+            if (strcmp("(", post->lexema) == 0) {
+                actual->token = "IDENTIFICADOR DE FUNCION";
+            }
+        }
+        actual = post;
+        if (post) {
+            post = post->sig;
+        }
+    }
 }
 
 
@@ -56,10 +78,10 @@ int main(int argc, char *argv[]) {
         printf("Se require File \n");
         return 1;
     }
-    int offset = 0;
     char letter;
     char word[1000];
     int wordPosition = 0;
+    int linea = 1;
     cleanWord(word);
     token *listToken = NULL;
     FILE *program = fopen(argv[1], "r");
@@ -71,13 +93,14 @@ int main(int argc, char *argv[]) {
             case -1: {
                 tipo = typeWord(word);
                 if (tipo) {
-                    nuevoToken(tipo, word, &listToken);
+                    nuevoToken(tipo, word, &listToken, linea);
                 }
                 cleanWord(word);
                 wordPosition = 0;
                 break;
             }
             case 10: {
+                linea++;
                 cleanWord(word);
                 wordPosition = 0;
                 continue;
@@ -85,7 +108,7 @@ int main(int argc, char *argv[]) {
             case 32:
                 tipo = typeWord(word);
                 if (tipo) {
-                    nuevoToken(tipo, word, &listToken);
+                    nuevoToken(tipo, word, &listToken, linea);
                 }
                 cleanWord(word);
                 wordPosition = 0;
@@ -93,34 +116,34 @@ int main(int argc, char *argv[]) {
             case 40:
                 tipo = typeWord(word);
                 if (tipo) {
-                    nuevoToken(tipo, word, &listToken);
+                    nuevoToken(tipo, word, &listToken, linea);
                 }
-                nuevoToken(CARACTERPUNTUACION, "(", &listToken);
+                nuevoToken(CARACTERPUNTUACION, "(", &listToken, linea);
                 cleanWord(word);
                 wordPosition = 0;
                 continue;
             case 43:
                 tipo = typeWord(word);
                 if (tipo) {
-                    nuevoToken(tipo, word, &listToken);
+                    nuevoToken(tipo, word, &listToken, linea);
                 }
                 cleanWord(word);
                 wordPosition = 0;
                 letter = (char) getc(program);
                 if (letter == 43) {
-                    nuevoToken(OPERATOR, "++", &listToken);
+                    nuevoToken(OPERATOR, "++", &listToken, linea);
                     continue;
                 } else {
-                    nuevoToken(OPERATOR, "+", &listToken);
+                    nuevoToken(OPERATOR, "+", &listToken, linea);
                 }
                 if (letter == 32) continue;
                 break;
             case 44: {
                 tipo = typeWord(word);
                 if (tipo) {
-                    nuevoToken(tipo, word, &listToken);
+                    nuevoToken(tipo, word, &listToken, linea);
                 }
-                nuevoToken(CARACTERPUNTUACION, ",", &listToken);
+                nuevoToken(CARACTERPUNTUACION, ",", &listToken, linea);
                 cleanWord(word);
                 wordPosition = 0;
                 continue;
@@ -128,27 +151,27 @@ int main(int argc, char *argv[]) {
             case 45:
                 tipo = typeWord(word);
                 if (tipo) {
-                    nuevoToken(tipo, word, &listToken);
+                    nuevoToken(tipo, word, &listToken, linea);
                 }
                 cleanWord(word);
                 wordPosition = 0;
                 letter = (char) getc(program);
                 if (letter == 45) {
-                    nuevoToken(OPERATOR, "--", &listToken);
+                    nuevoToken(OPERATOR, "--", &listToken, linea);
                     continue;
                 } else {
-                    nuevoToken(OPERATOR, "-", &listToken);
+                    nuevoToken(OPERATOR, "-", &listToken, linea);
                 }
                 if (letter == 32) continue;
                 break;
             case 41: {
                 tipo = typeWord(word);
                 if (tipo) {
-                    nuevoToken(tipo, word, &listToken);
+                    nuevoToken(tipo, word, &listToken, linea);
                 }
                 // si es una carga o una asignaciom
 
-                nuevoToken(CARACTERPUNTUACION, ")", &listToken);
+                nuevoToken(CARACTERPUNTUACION, ")", &listToken, linea);
                 cleanWord(word);
                 wordPosition = 0;
                 continue;
@@ -156,9 +179,9 @@ int main(int argc, char *argv[]) {
             case 123: {
                 tipo = typeWord(word);
                 if (tipo) {
-                    nuevoToken(tipo, word, &listToken);
+                    nuevoToken(tipo, word, &listToken, linea);
                 }
-                nuevoToken(CARACTERPUNTUACION, "{", &listToken);
+                nuevoToken(CARACTERPUNTUACION, "{", &listToken, linea);
                 cleanWord(word);
                 wordPosition = 0;
                 continue;
@@ -166,9 +189,9 @@ int main(int argc, char *argv[]) {
             case 125: {
                 tipo = typeWord(word);
                 if (tipo) {
-                    nuevoToken(tipo, word, &listToken);
+                    nuevoToken(tipo, word, &listToken, linea);
                 }
-                nuevoToken(CARACTERPUNTUACION, "}", &listToken);
+                nuevoToken(CARACTERPUNTUACION, "}", &listToken, linea);
                 cleanWord(word);
                 wordPosition = 0;
                 continue;
@@ -176,9 +199,9 @@ int main(int argc, char *argv[]) {
             case 60: {
                 tipo = typeWord(word);
                 if (tipo) {
-                    nuevoToken(tipo, word, &listToken);
+                    nuevoToken(tipo, word, &listToken, linea);
                 }
-                nuevoToken(OPERATOR, "<", &listToken);
+                nuevoToken(OPERATOR, "<", &listToken, linea);
                 cleanWord(word);
                 wordPosition = 0;
                 continue;
@@ -186,16 +209,16 @@ int main(int argc, char *argv[]) {
             case 61: {
                 tipo = typeWord(word);
                 if (tipo) {
-                    nuevoToken(tipo, word, &listToken);
+                    nuevoToken(tipo, word, &listToken, linea);
                 }
                 cleanWord(word);
                 wordPosition = 0;
                 letter = (char) getc(program);
                 if (letter == 61) {
-                    nuevoToken(OPERATOR, "==", &listToken);
+                    nuevoToken(OPERATOR, "==", &listToken, linea);
                     continue;
                 } else {
-                    nuevoToken(OPERADORCARGA, "=", &listToken);
+                    nuevoToken(OPERADORCARGA, "=", &listToken, linea);
                 }
                 if (letter == 32) continue;
                 break;
@@ -203,9 +226,9 @@ int main(int argc, char *argv[]) {
             case 62: {
                 tipo = typeWord(word);
                 if (tipo) {
-                    nuevoToken(tipo, word, &listToken);
+                    nuevoToken(tipo, word, &listToken, linea);
                 }
-                nuevoToken(OPERATOR, ">", &listToken);
+                nuevoToken(OPERATOR, ">", &listToken, linea);
                 cleanWord(word);
                 wordPosition = 0;
                 continue;
@@ -213,9 +236,9 @@ int main(int argc, char *argv[]) {
             case 59: {
                 tipo = typeWord(word);
                 if (tipo) {
-                    nuevoToken(tipo, word, &listToken);
+                    nuevoToken(tipo, word, &listToken, linea);
                 }
-                nuevoToken(CARACTERPUNTUACION, ";", &listToken);
+                nuevoToken(CARACTERPUNTUACION, ";", &listToken, linea);
                 cleanWord(word);
                 wordPosition = 0;
                 continue;
@@ -228,6 +251,7 @@ int main(int argc, char *argv[]) {
         wordPosition++;
 
     }
+    analisisLexico(listToken);
     showResult(listToken);
     return 0;
 }

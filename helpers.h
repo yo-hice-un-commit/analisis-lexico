@@ -7,7 +7,9 @@
 typedef struct {
     char *lexema;
     char *token;
+    int linea;
     void *sig;
+    char * Error;
 } token;
 typedef enum enumTokenType {
     UNDEFINED = 0,

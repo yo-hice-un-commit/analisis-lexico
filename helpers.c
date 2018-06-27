@@ -79,6 +79,7 @@ void showResult(token *listToken) {
     while (aux) {
         printf("Lexema [%s]\n", aux->lexema);
         printf("Token [%s]\n", aux->token);
+        printf("Linea [%d]\n", aux->linea);
         printf("----------------\n");
         aux = aux->sig;
     }

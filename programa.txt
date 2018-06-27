@@ -3,4 +3,5 @@ int nombreFuncion(int x,int y){
         return x;
     else
         return y;
+    algo(varible1,variable2);
 }
