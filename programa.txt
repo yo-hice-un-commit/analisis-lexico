@@ -1,5 +1,5 @@
-void analisisLexico(token *List) {
-    int miguel = 12;
-    char * nombre = "miguel";
-    return 0 ;
+void main(){
+    int a = 10;
+    int b = a + 12;
+    printf("%d",b);
 }

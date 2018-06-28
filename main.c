@@ -4,15 +4,15 @@
 #include "helpers.h"
 
 enum enumTokenType isWordReserved(char *word) {
-    char *listOperador[] = {"if", "while", "return", "else", "for", "switch", "case"};
-    char *listType[] = {"int", "char", "float", "double"};
+    char *listOperador[] = {"if", "while", "return", "else", "for", "switch", "case", "#include"};
+    char *listType[] = {"int", "char", "float", "double", "void"};
     int i;
-    for (i = 0; i < 7; ++i) {
+    for (i = 0; i < 8; ++i) {
         if (strcmp(listOperador[i], word) == 0) {
             return OPERATOR;
         }
     }
-    for (i = 0; i < 4; ++i) {
+    for (i = 0; i < 5; ++i) {
         if (strcmp(listType[i], word) == 0) {
             return TYPE;
         }
@@ -76,18 +76,18 @@ void analisisLexico(token *List) {
 }
 
 void crearFile(char *nameFile, token *List) {
-    FILE * fileResult = fopen(nameFile,"w");
-    if(!fileResult){
+    FILE *fileResult = fopen(nameFile, "w");
+    if (!fileResult) {
         printf("No se pudo Crear el archivo\n");
         return;
     }
-    token * Lexema = List;
-    fprintf(fileResult,"--------------TABLA DE LEXEMAS-------------------\n");
-    while (Lexema){
-        fprintf(fileResult,"Lexema [%s]\n", Lexema->lexema);
-        fprintf(fileResult,"Token [%s]\n", Lexema->token);
-        fprintf(fileResult,"Linea [%d]\n", Lexema->linea);
-        fprintf(fileResult,"----------------\n");
+    token *Lexema = List;
+    fprintf(fileResult, "--------------TABLA DE LEXEMAS-------------------\n");
+    while (Lexema) {
+        fprintf(fileResult, "Lexema [%s]\n", Lexema->lexema);
+        fprintf(fileResult, "Token [%s]\n", Lexema->token);
+        fprintf(fileResult, "Linea [%d]\n", Lexema->linea);
+        fprintf(fileResult, "----------------\n");
         Lexema = Lexema->sig;
     }
     fclose(fileResult);
@@ -162,6 +162,28 @@ int main(int argc, char *argv[]) {
                 }
                 if (letter == 32) continue;
                 break;
+            case 34:
+                tipo = typeWord(word);
+                if (tipo) {
+                    nuevoToken(tipo, word, &listToken, linea);
+                }
+                cleanWord(word);
+                wordPosition = 0;
+                word[wordPosition] = letter;
+                wordPosition++;
+                letter = (char) getc(program);
+                while (letter != 34 && letter != -1) {
+                    word[wordPosition] = letter;
+                    wordPosition++;
+                    letter = (char) getc(program);
+                }
+                if (letter != -1) {
+                    word[wordPosition] = letter;
+                }
+                nuevoToken(LITERALCADENA, word, &listToken, linea);
+                cleanWord(word);
+                wordPosition = 0;
+                continue;
             case 38: {
                 tipo = typeWord(word);
                 if (tipo) {
@@ -394,7 +416,7 @@ int main(int argc, char *argv[]) {
         if (letter == -1) {
             continue;
         }
-        if(letter == 10){
+        if (letter == 10) {
             linea++;
             continue;
         }
@@ -406,7 +428,7 @@ int main(int argc, char *argv[]) {
     if (!flagResultadoinFile) {
         showResult(listToken);
     } else {
-        crearFile(argv[2],listToken);
+        crearFile(argv[2], listToken);
     }
     fclose(program);
     return 0;
