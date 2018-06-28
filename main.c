@@ -4,8 +4,8 @@
 #include "helpers.h"
 
 enum enumTokenType isWordReserved(char *word) {
-    char *listOperador[] = {"if", "while", "return", "else","for","switch","case"};
-    char *listType[] = {"int","char","float","double"};
+    char *listOperador[] = {"if", "while", "return", "else", "for", "switch", "case"};
+    char *listType[] = {"int", "char", "float", "double"};
     int i;
     for (i = 0; i < 7; ++i) {
         if (strcmp(listOperador[i], word) == 0) {
@@ -53,7 +53,7 @@ int nuevoToken(enum enumTokenType type, char *word, token **List, int linea) {
 }
 
 void analisisLexico(token *List) {
-    if(!List)
+    if (!List)
         return;
     token *actual;
     token *post;
@@ -75,11 +75,38 @@ void analisisLexico(token *List) {
     }
 }
 
+void crearFile(char *nameFile, token *List) {
+    FILE * fileResult = fopen(nameFile,"w");
+    if(!fileResult){
+        printf("No se pudo Crear el archivo\n");
+        return;
+    }
+    token * Lexema = List;
+    fprintf(fileResult,"--------------TABLA DE LEXEMAS-------------------\n");
+    while (Lexema){
+        fprintf(fileResult,"Lexema [%s]\n", Lexema->lexema);
+        fprintf(fileResult,"Token [%s]\n", Lexema->token);
+        fprintf(fileResult,"Linea [%d]\n", Lexema->linea);
+        fprintf(fileResult,"----------------\n");
+        Lexema = Lexema->sig;
+    }
+    fclose(fileResult);
+}
+
 int main(int argc, char *argv[]) {
+    int flagResultadoinFile = 0;
     if (argc < 2) {
         printf("Se require File \n");
         return 1;
     }
+    if (argc > 3) {
+        printf("Se esta mandando mas parametros de lo requerido\n");
+        return 1;
+    }
+    if (argc == 3) {
+        flagResultadoinFile = 1;
+    }
+
     char letter;
     char word[1000];
     int wordPosition = 0;
@@ -87,6 +114,10 @@ int main(int argc, char *argv[]) {
     cleanWord(word);
     token *listToken = NULL;
     FILE *program = fopen(argv[1], "r");
+    if (!program) {
+        printf("No se puedo encontrar el archivo\n");
+        return 1;
+    }
     enum enumTokenType tipo;
 
     while (!feof(program)) {
@@ -131,7 +162,7 @@ int main(int argc, char *argv[]) {
                 }
                 if (letter == 32) continue;
                 break;
-            case 38:{
+            case 38: {
                 tipo = typeWord(word);
                 if (tipo) {
                     nuevoToken(tipo, word, &listToken, linea);
@@ -148,7 +179,7 @@ int main(int argc, char *argv[]) {
                 if (letter == 32) continue;
                 break;
             }
-            case 124:{
+            case 124: {
                 tipo = typeWord(word);
                 if (tipo) {
                     nuevoToken(tipo, word, &listToken, linea);
@@ -368,6 +399,11 @@ int main(int argc, char *argv[]) {
 
     }
     analisisLexico(listToken);
-    showResult(listToken);
+    if (!flagResultadoinFile) {
+        showResult(listToken);
+    } else {
+        crearFile(argv[2],listToken);
+    }
+    fclose(program);
     return 0;
 }

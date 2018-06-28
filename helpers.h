@@ -22,9 +22,6 @@ typedef enum enumTokenType {
     LITERALCADENA = 7
 } enumTokenType;
 
-char *leerLinea(FILE *file, int *offset);
-
-char *getWord(char *text, char limit);
 
 void cleanWord(char *word);
 
