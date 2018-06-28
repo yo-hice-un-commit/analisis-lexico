@@ -394,6 +394,10 @@ int main(int argc, char *argv[]) {
         if (letter == -1) {
             continue;
         }
+        if(letter == 10){
+            linea++;
+            continue;
+        }
         word[wordPosition] = letter;
         wordPosition++;
 
